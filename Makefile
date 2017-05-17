@@ -52,6 +52,8 @@ CPPFLAGS += -Iinclude \
 	    -DPF_CAN=29 \
 	    -DAF_CAN=PF_CAN
 
+LDLIBS += -lmosquitto
+
 PROGRAMS_ISOTP = isotpdump isotprecv isotpsend isotpsniffer isotptun isotpserver isotpperf
 PROGRAMS_CANGW = cangw
 PROGRAMS_SLCAN = slcan_attach slcand
@@ -61,7 +63,8 @@ PROGRAMS = can-calc-bit-timing candump cansniffer cansend canplayer cangen canbu
 	   $(PROGRAMS_ISOTP)\
 	   $(PROGRAMS_CANGW)\
 	   $(PROGRAMS_SLCAN)\
-	   slcanpty canfdtest
+	   slcanpty canfdtest\
+	   candump-mosquitto
 
 all: $(PROGRAMS)
 
@@ -85,6 +88,7 @@ log2long.o:	lib.h
 log2asc.o:	lib.h
 asc2log.o:	lib.h
 canframelen.o:  canframelen.h
+candump-mosquitto.o: lib.h
 
 cansend:	cansend.o	lib.o
 cangen:		cangen.o	lib.o
@@ -95,3 +99,4 @@ log2long:	log2long.o	lib.o
 log2asc:	log2asc.o	lib.o
 asc2log:	asc2log.o	lib.o
 canbusload:	canbusload.o	canframelen.o
+candump-mosquitto:   candump-mosquitto.o  lib.o
