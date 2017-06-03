@@ -36,6 +36,7 @@ bin_PROGRAMS = \
 	can-calc-bit-timing \
 	canbusload \
 	candump \
+	candump-mosquitto \
 	canfdtest \
 	cangen \
 	cangw \
