@@ -252,7 +252,7 @@ int main(int argc, char **argv)
 				strcat(json, tmp);
 			}
 			strcat(json, "]}");
-			mosquitto_publish(mosq, NULL, "$SYS/raw", 100, &json, 0, false);
+			mosquitto_publish(mosq, NULL, "data/raw", 100, &json, 0, false);
 			mosquitto_loop(mosq, 0, 1);				
 			
 			// canN output on stdout
