@@ -74,7 +74,7 @@
 
 static char devname[MAXIFNAMES][IFNAMSIZ+1];
 static int  dindex[MAXIFNAMES];
-static int  max_devname_len; /* to prevent frazzled device name output */ 
+static int  max_devname_len; /* to prevent frazzled device name output */
 const int canfd_on = 1;
 
 static struct timeval time_count;
@@ -135,7 +135,7 @@ void mosquitto_message_callback(struct mosquitto *mosq, void *userdata, const st
 	if (message->payloadlen) {
 		if ((int *)message->payload) {
 			gettimeofday(&time_count, NULL);
-		} 			
+		}
 	}
 }
 
@@ -145,7 +145,7 @@ int main(int argc, char **argv)
 	int sock;
 	unsigned char view = 0;
 	int count = 0;
-	char *ptr = CAN_INTERFACE; 
+	char *ptr = CAN_INTERFACE;
 	struct sockaddr_can addr;
 	char ctrlmsg[CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(sizeof(__u32))];
 	struct iovec iov;
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 	struct canfd_frame frame;
 	int nbytes, maxdlen;
 	struct ifreq ifr;
-	bool clean_session = true;	
+	bool clean_session = true;
 	int idx;
 
 	struct mosquitto *mosq = NULL;
@@ -173,7 +173,7 @@ int main(int argc, char **argv)
 	signal(SIGTERM, sigterm);
 	signal(SIGHUP, sigterm);
 	signal(SIGINT, sigterm);
-	
+
 	sock = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 	if (sock < 0) {
 		perror("socket");
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
 			/* these settings may be modified by recvmsg() */
 			iov.iov_len = sizeof(frame);
 			msg.msg_namelen = sizeof(addr);
-			msg.msg_controllen = sizeof(ctrlmsg);  
+			msg.msg_controllen = sizeof(ctrlmsg);
 			msg.msg_flags = 0;
 
 			nbytes = recvmsg(sock, &msg, 0);
@@ -242,23 +242,27 @@ int main(int argc, char **argv)
 			long long ms = mosq_te.tv_sec*1000LL + mosq_te.tv_usec/1000;
 			long long ref_ms = time_count.tv_sec*1000LL + time_count.tv_usec/1000;
 			long long delta_ms = ms - ref_ms;
-				
-			char json[100]; // da fare l'alloc della memoria ad hoc
-			sprintf(json, "{id:%u,time:%lld,data:[", frame.can_id, delta_ms);
+
+			char json[100];
+			memset(json, 0, 100);
+			sprintf(json, "{\"id\":%u,\"time\":%lld,\"data\":[", frame.can_id, delta_ms);
 			char tmp[10];
 			int i = 0;
 			for (i = 0; i < 8; i++) {
-				sprintf(tmp, "%d,", frame.data[i]);
+				if (i != 7)
+					sprintf(tmp, "%d,", frame.data[i]);
+				else
+					sprintf(tmp, "%d", frame.data[i]);
 				strcat(json, tmp);
 			}
 			strcat(json, "]}");
-			mosquitto_publish(mosq, NULL, "data/raw", 100, &json, 0, false);
-			mosquitto_loop(mosq, 0, 1);				
-			
+			mosquitto_publish(mosq, NULL, "data/raw", strlen(json), &json, 0, false);
+			mosquitto_loop(mosq, 0, 1);
+
 			// canN output on stdout
-			printf("  %*s  ", max_devname_len, devname[idx]);
-			fprint_long_canframe(stdout, &frame, NULL, view, maxdlen);
-			printf("\n");
+			//printf("  %*s  ", max_devname_len, devname[idx]);
+			//fprint_long_canframe(stdout, &frame, NULL, view, maxdlen);
+			//printf("\n");
 		}
 	}
 
