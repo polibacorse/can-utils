@@ -243,11 +243,11 @@ int main(int argc, char **argv)
 			long long ref_ms = time_count.tv_sec*1000LL + time_count.tv_usec/1000;
 			long long delta_ms = ms - ref_ms;*/
 
-			long unixTimestamp = (long)time(NULL);
+			unsigned unixTimestamp = (unsigned)time(NULL);
 
 			char json[100];
 			memset(json, 0, 100);
-			sprintf(json, "{\"id\":%u,\"time\":%lld,\"data\":[", frame.can_id, unixTimestamp);
+			sprintf(json, "{\"id\":%u,\"time\":%u,\"data\":[", frame.can_id, unixTimestamp);
 			char tmp[10];
 			int i = 0;
 			for (i = 0; i < 8; i++) {
